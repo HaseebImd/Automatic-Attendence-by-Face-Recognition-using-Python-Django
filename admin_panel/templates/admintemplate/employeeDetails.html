@@ -1,0 +1,81 @@
+{% extends 'admintemplate/index.html' %}
+
+{% block title%} {{context.name}} {%endblock%}
+
+{% block content%}
+<div id="layoutSidenav_content">
+   <main>
+        <div class="container-fluid px-4">
+            <h1 class="mt-4" style="color: #7D61B5;"><b>{{context.name}}</b></h1>
+            <img style="border-radius: 50%;height:200px;width:200px;" src="{{context.image.url}}" alt=""/>
+                
+            <ol class="breadcrumb mb-4">
+                
+                <li class="breadcrumb-item active">{{context.cnic}}</li>
+                <li class="breadcrumb-item active"><b>{{context.designation}}</b></li>
+                
+
+            </ol>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table me-1"></i>
+                    Employees Details
+                </div>
+                {% if context.message %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{context.message}}
+                        </div>
+                {% endif%}
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                            <th scope="col">Entry Time </th>
+                            <th scope="col">Entry Attendence</th>
+                            <th scope="col">Exit Time </th>
+                            <th scope="col">Exit Attendence</th>
+                            <th scope="col">Duty Duration</th>
+                            <th scope="col">Status</th>
+                            
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee  in context.Employeedata %}
+                                <tr>
+                                    <td>{{employee.entry_time}}</td>
+                                        {% if employee.entry_attendence == True %}
+                                        <td>Present</td>
+                                        {% else %}
+                                        <td>Absent</td>
+                                        {% endif %}
+                                    <td>{{employee.exit_time}}</td>
+                                    {% if employee.exit_attendence == True %}
+                                        <td>Present</td>
+                                        {% else %}
+                                        <td>Absent</td>
+                                        {% endif %}
+                                    <td>{{employee.total_time}} hours</td>
+                                    {% if employee.status == True %}
+                                        <td>Present</td>
+                                        {% else %}
+                                        <td>Absent</td>
+                                        {% endif %}
+                                    
+                                    
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    
+</div>
+
+
+
+
+{%endblock%}

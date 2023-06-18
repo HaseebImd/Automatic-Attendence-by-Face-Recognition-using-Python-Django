@@ -1,0 +1,255 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Kankor</title>
+        <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+        <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+    </head>
+    <style>
+        /* CSS comes here */
+        #video {
+            border: 1px solid black;
+            width: 320px;
+            height: 240px;
+        }
+
+        #photo {
+            border: 1px solid black;
+            width: 320px;
+            height: 240px;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .camera {
+            width: 340px;
+            display: inline-block;
+        }
+
+        .output {
+            width: 340px;
+            display: inline-block;
+        }
+
+        #startbutton {
+            display: block;
+            position: relative;
+            margin-left: auto;
+            margin-right: auto;
+            bottom: 36px;
+            padding: 5px;
+            background-color: #6a67ce;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 1.0);
+            cursor: pointer;
+        }
+
+        .contentarea {
+            font-size: 16px;
+            font-family: Arial;
+            text-align: center;
+        }
+        
+        body {
+        background-image: url('https://th.bing.com/th/id/R.71310f454b6ce3550b9df58ccfa6775e?rik=3kO8x%2by%2fHjlNOg&pid=ImgRaw&r=0');
+        background-repeat: no-repeat;
+        background-attachment: fixed;  
+        background-size: cover;
+        }
+ 
+    </style>
+    <body>
+        <div id="layoutAuthentication">
+            <div id="layoutAuthentication_content">
+                <main>
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-5">
+                                <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                     <h3 style="color: #7D61B5; font-weight: 600;" class="text-center font-weight-light my-4"><b>FaceRecg Attendence System</b></h3>
+                                        <div class="card-footer text-center py-3">
+                                            <div class="contentarea">
+                                                {% if welcome %}
+                                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                        Welcome <b>{{welcome}}</b>! Your attendnce is marked.
+                                                    </div>
+                                                {% endif%}
+                                                {% if exit %}
+                                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                        GoodBye <b>{{exit}}</b>! Your attendnce is marked.
+                                                    </div>
+                                                {% endif%}
+                                                {% if alreadymarked %}
+                                                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                                        <b>{{alreadymarked}}</b>! Your attendnce is already marked.
+                                                    </div>
+                                                {% endif%}
+                                                
+                                                    <video id="video">Video stream not available.</video>
+                                                </div>
+                                                <div style="display:none;"><button id="startbutton">Mark Your Attendence</button></div>
+                                                <canvas id="canvas"></canvas>
+                                                <form id="mainForm" action="markAttendence" method="POST" enctype='multipart/form-data'>
+                                                    {% csrf_token %}
+                                                    <div>
+                                                        <img name="photo" hidden  id="photo" alt="The screen capture will appear in this box.">
+                                                    </div>
+                                                    <input type="text" name="link" id="link" hidden/>
+                                                    <button type="submit" hidden id="submitImage" class="btn btn-primary">SubmitImage</button>
+                                                </form>
+                                                
+                                            </div>
+                                            <br>
+                                            <div class="container">
+                                                <div class="row">
+                                                    <div class="col-sm-6 col-lg-6 col-md-6 col-sm-6 col-xs-12" style="text-align:center;">
+                                                        <form action="EmployeeLogin" method="POST">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-primary">Employee Login</button>
+                                                        </form>
+                                                    </div>
+                                                    <div class="col-sm-6 col-lg-6 col-md-6 col-sm-6 col-xs-12" style="text-align:center;">
+                                                        <form action="AdminLogin" method="POST">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-outline-secondary">&nbsp;&nbsp;Admin Login&nbsp;&nbsp;&nbsp;</button>
+                                                        </form>
+                                                    </div>
+                                                </div>  
+                                            </div>
+                                            <br>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+           
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="{% static 'js/scripts.js'%}"></script>
+    </body>
+    <script>
+    /* JS comes here */
+    (function() {
+
+        var width = 320; // We will scale the photo width to this
+        var height = 0; // This will be computed based on the input stream
+
+        var streaming = false;
+
+        var video = null;
+        var canvas = null;
+        var photo = null;
+        var startbutton = null;
+
+        function startup() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            photo = document.getElementById('photo');
+            startbutton = document.getElementById('startbutton');
+            
+            navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.log("An error occurred: " + err);
+                });
+
+            video.addEventListener('canplay', function(ev) {
+                if (!streaming) {
+                    height = video.videoHeight / (video.videoWidth / width);
+
+                    if (isNaN(height)) {
+                        height = width / (4 / 3);
+                    }
+
+                    video.setAttribute('width', width);
+                    video.setAttribute('height', height);
+                    canvas.setAttribute('width', width);
+                    canvas.setAttribute('height', height);
+                    streaming = true;
+                }
+            }, false);
+
+            startbutton.addEventListener('click', function(ev) {
+                takepicture();
+                ev.preventDefault();
+            }, false);
+
+            clearphoto();
+        }
+
+
+        function clearphoto() {
+            var context = canvas.getContext('2d');
+            context.fillStyle = "#AAA";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            var data = canvas.toDataURL('image/jpg');
+            photo.setAttribute('src', data);
+        }
+        const getBase64Image = (img) => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL("image/png");
+            return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+        };
+        function takepicture() {
+            var context = canvas.getContext('2d');
+            if (width && height) {
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(video, 0, 0, width, height);
+
+                var data = canvas.toDataURL('image/jpg');
+                photo.setAttribute('src', data);
+                //console.log(photo)
+                var f = document.getElementById("mainForm")
+                //console.log(f)
+                //const imgData = getBase64Image(photo);
+                //localStorage.setItem("imgData", imgData);
+                //console.log(photo.src)
+                //f.submit();
+                document.getElementById("link").value =photo.src;
+                document.getElementById("submitImage").click()
+                //document.cookie = photo;
+            } else {
+                clearphoto();
+            }
+        }
+
+        window.addEventListener('load', startup, false);
+    })();
+
+    setTimeout(function() {
+        console.log("Haseeb")
+        document.getElementById("startbutton").click();
+    },3000);
+
+
+
+    
+
+    </script>
+   
+</html>
+

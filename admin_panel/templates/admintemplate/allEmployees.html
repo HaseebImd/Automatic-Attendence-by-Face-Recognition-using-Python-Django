@@ -1,0 +1,67 @@
+{% extends 'admintemplate/index.html' %}
+
+{% block title%} All Employees {%endblock%}
+
+{% block content%}
+<div id="layoutSidenav_content">
+   <main>
+        <div class="container-fluid px-4">
+            <h1 class="mt-4" style="color: #7D61B5;"><b>All Employees</b></h1>
+            <ol class="breadcrumb mb-4">
+                <li class="breadcrumb-item active"></li>
+            </ol>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table me-1"></i>
+                    All Employees
+                </div>
+                
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                            <th scope="col">CNIC</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">City</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Designation</th>
+                            <th scope="col"></th>
+                            
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee  in AllEmployees %}
+                                <tr>
+                                    <td>{{employee.cnic}}</td>
+                                    <td>{{employee.name}}</td>
+                                    <td>{{employee.email}}</td>
+                                    <td>{{employee.city}}</td>
+                                    <td>{{employee.address}}</td>
+                                    <td>{{employee.phone}}</td>
+                                    <td>{{employee.designation}}</td>
+                                    <td><img style="border-radius: 50%;height:50px;width:50px;" src="{{employee.image.url}}" alt=""/></td>
+                                    <td>
+                                        <form action="details" method="POST">
+                                            {% csrf_token %}
+                                            <input hidden type="text" name='cnic' value='{{employee.id}}'>
+                                            <button class="btn btn-success"><i class="fa fa-info-circle"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    
+</div>
+
+
+
+
+{%endblock%}

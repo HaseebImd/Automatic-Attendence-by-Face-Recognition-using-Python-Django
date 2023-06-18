@@ -1,0 +1,89 @@
+{% extends 'admintemplate/index.html' %}
+
+{% block title%} Search Employee {%endblock%}
+
+{% block content%}
+<div id="layoutSidenav_content">
+   <main>
+        <div class="container-fluid px-4">
+            <h1 class="mt-4" style="color: #7D61B5;"><b>Search Employee</b></h1>
+            <ol class="breadcrumb mb-4">
+                <li class="breadcrumb-item active"></li>
+            </ol>
+            <form action="search" method="POST">
+            <div class="container">
+                <div class="row">
+                        {% csrf_token %}
+                        <div class="col-sm-6 col-lg-6 col-md-6 col-sm-6 col-xs-12" style="text-align:center;">
+                            <div class="mb-3">
+                                <input type="text" name="name" class="form-control" id="exampleFormControlInput1" placeholder="Search by Name">
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-6 col-md-6 col-sm-6 col-xs-12" style="text-align:center;">
+                            <div class="mb-3">
+                            <button   button type="submit" class="btn btn-outline-secondary">Search by Name</button>
+                            </div>
+                        </div>
+                </div>  
+            </div>
+            </form>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table me-1"></i>
+                    Searched Employees
+                </div>
+                {% if context.message %}
+
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{context.message}}
+                        </div>
+
+                {% endif%}
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                            <th scope="col">CNIC</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">City</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Designation</th>
+                            
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee  in AllEmployees %}
+                                <tr>
+                                    <td>{{employee.cnic}}</td>
+                                    <td>{{employee.name}}</td>
+                                    <td>{{employee.email}}</td>
+                                    <td>{{employee.city}}</td>
+                                    <td>{{employee.address}}</td>
+                                    <td>{{employee.phone}}</td>
+                                    <td>{{employee.designation}}</td>
+                                    <td><img style="border-radius: 50%;height:50px;width:50px;" src="{{employee.image.url}}" alt=""/></td>
+                                    <td>
+                                        <form action="details" method="POST">
+                                            {% csrf_token %}
+                                            <input hidden type="text" name='cnic' value='{{employee.id}}'>
+                                            <button class="btn btn-success"><i class="fa fa-info-circle"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    
+</div>
+
+
+
+
+{%endblock%}
